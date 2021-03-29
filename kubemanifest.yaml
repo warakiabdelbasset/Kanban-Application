@@ -48,7 +48,7 @@ items:
       io.kompose.service: kanban-ui
   status:
     loadBalancer: {}
-- apiVersion: extensions/v1beta1
+- apiVersion: apps/v1
   kind: Deployment
   metadata:
     creationTimestamp: null
@@ -80,7 +80,7 @@ items:
           resources: {}
         restartPolicy: Always
   status: {}
-- apiVersion: extensions/v1beta1
+- apiVersion: apps/v1
   kind: Deployment
   metadata:
     creationTimestamp: null
@@ -133,7 +133,7 @@ items:
       requests:
         storage: 100Mi
   status: {}
-- apiVersion: extensions/v1beta1
+- apiVersion: apps/v1
   kind: Deployment
   metadata:
     creationTimestamp: null
