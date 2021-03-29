@@ -1,0 +1,161 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: kanban-app
+    name: kanban-app
+  spec:
+    ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+    selector:
+      io.kompose.service: kanban-app
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: kanban-postgres
+    name: kanban-postgres
+  spec:
+    ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+    selector:
+      io.kompose.service: kanban-postgres
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: kanban-ui
+    name: kanban-ui
+  spec:
+    ports:
+    - name: "4200"
+      port: 4200
+      targetPort: 80
+    selector:
+      io.kompose.service: kanban-ui
+  status:
+    loadBalancer: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: kanban-app
+    name: kanban-app
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: kanban-app
+      spec:
+        containers:
+        - env:
+          - name: DB_SERVER
+            value: kanban-postgres
+          - name: POSTGRES_DB
+            value: kanban
+          - name: POSTGRES_USER
+            value: kanban
+          - name: POSTGRES_PASSWORD
+            value: kanban
+          name: kanban-app
+          ports:
+          - containerPort: 8080
+          resources: {}
+        restartPolicy: Always
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: kanban-postgres
+    name: kanban-postgres
+  spec:
+    replicas: 1
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: kanban-postgres
+      spec:
+        containers:
+        - env:
+          - name: POSTGRES_DB
+            value: kanban
+          - name: POSTGRES_USER
+            value: kanban
+          - name: POSTGRES_PASSWORD
+            value: kanban
+          image: postgres:9.6-alpine
+          name: kanban-postgres
+          ports:
+          - containerPort: 5432
+          resources: {}
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: kanban-data
+        restartPolicy: Always
+        volumes:
+        - name: kanban-data
+          persistentVolumeClaim:
+            claimName: kanban-data
+  status: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: kanban-data
+    name: kanban-data
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 100Mi
+  status: {}
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: kanban-ui
+    name: kanban-ui
+  spec:
+    replicas: 1
+    strategy: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: kanban-ui
+      spec:
+        containers:
+        - name: kanban-ui
+          ports:
+          - containerPort: 80
+          resources: {}
+        restartPolicy: Always
+  status: {}
+kind: List
+metadata: {}
+
